@@ -38,6 +38,13 @@ void construct(int ** mtx, int init, size_t rows, size_t cols)
 }
 int main()
 {
+  size_t r = 0, c = 0;
+  std::cin >> r >> c;
+  if (!std::cin)
+  {
+    std::cerr << "Bad input\n";
+    return 2;
+  }
   int ** matrix = nullptr;
   try
   {
