@@ -1,18 +1,67 @@
 #include <iostream>
 #include <cstddef>
-void free_convert(int ** result, size_t created)
+void destroy(int ** mtx, size_t created)
 {
-  if (result == nullptr)
-  {
+  if (mtx == nullptr) {
     return;
   }
   else {
-    for (size_t i = 0; i < created; i++)
+  for (size_t i = 0; i < created; i++)
+  {
+    delete[] mtx[i];
+  }
+  delete[] mtx;
+}
+}
+int ** create(size_t rows, size_t cols)
+{
+  int ** mtx = new int * [rows];
+  size_t created = 0;
+  try
+  {
+  for (; created < rows; created++)
+  {
+    mtx[created] = new int[cols];
+  }
+}
+  catch (const std::bad_alloc &e)
+  {
+    destroy(mtx, created);
+    throw;
+  }
+  return mtx;
+}
+void construct(int ** mtx, int init, size_t rows, size_t cols)
+{
+  for (size_t i = 0; i < rows; i++)
+  {
+    for (size_t j = 0; j < cols; j++)
     {
-        delete[] result[i];
+        mtx[i][j] = init;
     }
   }
-  delete[] result;
+}
+void input(int ** mtx, size_t rows, size_t cols)
+{
+  for (size_t i = 0; i < rows; i++) 
+  {
+    for (size_t j = 0; j < cols; j++)
+    {
+        std::cin >> mtx[i][j];
+    }
+  }
+}
+void output(int ** mtx, size_t rows, size_t cols)
+{
+    for (size_t i = 0; i < rows; i++)
+    {
+        std::cout << mtx[i][0];
+        for (size_t j = 1; j < cols; j++)
+        {
+            std::cout << ' ' << mtx[i][j];
+        }
+        std::cout << "\n";
+    }
 }
 int ** convert(const int * t, size_t n, const size_t * lns, size_t rows)
 {
@@ -29,17 +78,17 @@ int ** convert(const int * t, size_t n, const size_t * lns, size_t rows)
   {
     return nullptr;
   }
-  int ** result = new int * [rows];
+  int ** mtx = new int * [rows];
   size_t number_index = 0;
   size_t created = 0;
   try
   {
   for (size_t i = 0; i < rows; i++)
   {
-    result[i] = new int [lns[i]];
+    mtx[i] = new int [lns[i]];
     for (size_t j = 0; j < lns[i]; j++)
     {
-      result[i][j] = t[number_index];
+      mtx[i][j] = t[number_index];
       number_index++;
     }
     created++;
@@ -47,47 +96,40 @@ int ** convert(const int * t, size_t n, const size_t * lns, size_t rows)
 }
 catch (const std::bad_alloc &e)
 {
-  free_convert(result, created);
+  destroy(mtx, created);
   throw;
 }
-return result;
+return mtx;
 }
-void output(int ** result, size_t rows, const size_t * lns)
+int main()
 {
-    if (result != nullptr)
-    {
-      for (size_t i = 0; i < rows; i++)
-     {
-        std::cout << result[i][0];
-        for (size_t j = 1; j < lns[i]; j++)
-        {
-            std::cout << " " << result[i][j];
-        }
-        std::cout << "\n";
-     } 
-    }
-    else 
-    {
-        std::cerr << "Error\n";
-    }
-}
-int main() {
-    int t[] = {5, 5, 5, 5, 6, 6, 7, 7, 7, 7, 7, 8};
-    size_t n = 12;
-    size_t lns[] = {4, 2, 5, 1};
-    size_t rows = 4;
-    int ** result = nullptr;
-    try
-    {
-      result = convert(t, n, lns, rows);
-    }
-    catch (const std::bad_alloc &e)
-    {
-        std::cerr << e.what() << "\n";
-        return 1;
-    }
-    std::cout << "matrix created!\n";
-    output(result, rows, lns);
-    free_convert(result, rows);
-    return 0;
+  size_t r = 0, c = 0;
+  std::cin >> r >> c;
+  if (!std::cin)
+  {
+    std::cerr << "Bad input\n";
+    return 2;
+  }
+  int ** matrix = nullptr;
+  try
+  {
+    matrix = create(5, 5);
+  }
+  catch (const std::bad_alloc &e)
+  {
+    std::cerr << e.what() << "\n";
+    return 1;
+  }
+  std::cout << "created!" << "\n";
+  construct(matrix, 0, 5, 5);
+  std::cout << matrix[0][0];
+  input(matrix, r, c);
+  if (!std::cin)
+  {
+    destroy(matrix, r);
+    std::cerr << "Input error\n";
+    return 1;
+  }
+  output(matrix, r, c);
+  destroy(matrix, r);
 }
